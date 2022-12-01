@@ -1,7 +1,7 @@
 namespace Near
 {
     [System.Serializable]
-    public struct FinalExecStatusData
+    public class FinalExecStatusData
     {
         public ExecErrorData Failure;
         public string SuccessValue;

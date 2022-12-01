@@ -17,15 +17,20 @@ namespace Near
             return null;
         }
 
-        public async Task<object> SignAndSendTx(string ctrId)
+        public async Task<FinalExecOutcomeData> SignAndSendTx(string ctrId)
         {
             var status = await _provider.GetStatus();
-            var (txHash, tx) = await SignTx("", 1, new ByteArray32
+            var (txHash, tx) = await SignTx(ctrId, 1, new ByteArray32
             {
                 Buffer = Base58.Decode(status.sync_info.latest_block_hash)
             }, "", "");
             var res = await _provider.SendTx(tx);
-            return null;
+            if (res.status != null && res.status.Failure != null)
+            {
+                throw new Exception();
+            }
+
+            return res;
         }
 
         public async Task<Tuple<byte[], SignedTxData>> SignTx(string ctrId, ulong nonce, ByteArray32 blockHash, string accId, string nwId)

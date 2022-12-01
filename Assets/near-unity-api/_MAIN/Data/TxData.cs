@@ -4,7 +4,7 @@ using NearClientUnity.Utilities;
 namespace Near
 {
     [System.Serializable]
-    public struct TxData : IByteArrData
+    public class TxData : IByteArrData
     {
         public ByteArray32 block_hash;
         public ulong nonce;

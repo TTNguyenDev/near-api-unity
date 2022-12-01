@@ -4,7 +4,7 @@ using NearClientUnity.Utilities;
 namespace Near
 {
     [System.Serializable]
-    public struct SignatureData : IByteArrData
+    public class SignatureData : IByteArrData
     {
         public ByteArray64 data;
 

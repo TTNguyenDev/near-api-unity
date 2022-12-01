@@ -1,7 +1,7 @@
 namespace Near
 {
     [System.Serializable]
-    public struct FinalExecOutcomeData
+    public class FinalExecOutcomeData
     {
         public IdExecOutcomeData[] receipts;
         public IdExecOutcomeData transaction;
