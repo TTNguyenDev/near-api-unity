@@ -16,12 +16,12 @@ namespace Near
             return JsonConvert.DeserializeObject<StatusData>(res);
         }
 
-        public async Task<object> SendTx(SignedTxData tx)
+        public async Task<FinalExecOutcomeData> SendTx(SignedTxData tx)
         {
             var txData = tx.ToByteArr();
             var body = new object[] { Convert.ToBase64String(txData, 0, txData.Length) };
             var res = await SendJsonRpc("broad_tx_commit", body);
-            return null;
+            return JsonConvert.DeserializeObject<FinalExecOutcomeData>(res);
         }
 
         public async Task<string> SendJsonRpc(string method, object[] paramArr = null)
