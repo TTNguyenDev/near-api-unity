@@ -17,6 +17,7 @@ public class Test : MonoBehaviour
     private void Start()
     {
         Log("We all love you very much, Neil. Sometimes not.");
+        Log(JsonConvert.SerializeObject(JsonConvert.DeserializeObject<TestClass>(JsonConvert.SerializeObject(new { }))));
 
         try
         {
@@ -40,4 +41,18 @@ public class Test : MonoBehaviour
         _log.text = log;
         Debug.Log(log);
     }
+}
+
+[System.Serializable]
+public class TestClass
+{
+    public int id;
+    public string name;
+    public SubTestClass sub;
+}
+
+[System.Serializable]
+public class SubTestClass
+{
+    public int sub_id;
 }
