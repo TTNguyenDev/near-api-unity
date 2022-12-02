@@ -47,6 +47,7 @@ namespace Near
     [System.Serializable]
     public class TxData : IByteArrData
     {
+        public ActData[] actions;
         public ByteArray32 block_hash;
         public ulong nonce;
         public PublicKey public_key;
@@ -63,6 +64,12 @@ namespace Near
                     wr.Write(nonce);
                     wr.Write(receiver_id);
                     wr.Write(block_hash.Buffer);
+
+                    wr.Write((uint)actions.Length);
+                    foreach (var act in actions)
+                    {
+                        wr.Write(act.ToByteArr());
+                    }
 
                     return ms.ToArray();
                 }

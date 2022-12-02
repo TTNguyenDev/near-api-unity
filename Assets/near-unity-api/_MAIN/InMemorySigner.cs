@@ -8,7 +8,7 @@ namespace Near
 {
     public class InMemorySigner : MonoBehaviour
     {
-        public Tuple<byte[], SignedTxData> SignTx(string ctrId, ulong nonce, ByteArray32 blockHash, string accId, string nwId)
+        public Tuple<byte[], SignedTxData> SignTx(string ctrId, ulong nonce, ActData[] acts, ByteArray32 blockHash, string accId, string nwId)
         {
             var tx = new TxData
             {
@@ -16,10 +16,14 @@ namespace Near
                 public_key = KeyPairEd25519.FromString("ed25519:private-key").GetPublicKey(),
                 nonce = nonce,
                 receiver_id = ctrId,
+                actions = acts,
                 block_hash = blockHash,
             };
+
             var txData = tx.ToByteArr();
+
             var hash = SHA256.Create().ComputeHash(txData);
+
             var signature = SignMsg(txData, accId, nwId);
             var signedTx = new SignedTxData
             {
