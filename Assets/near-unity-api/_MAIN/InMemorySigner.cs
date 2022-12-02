@@ -8,31 +8,43 @@ namespace Near
 {
     public class InMemorySigner : MonoBehaviour
     {
-        public async Task<Tuple<byte[], SignedTxData>> SignTx(string ctrId, ulong nonce, ByteArray32 blockHash, string accId, string nwId)
+        public Tuple<byte[], SignedTxData> SignTx(string ctrId, ulong nonce, ByteArray32 blockHash, string accId, string nwId)
         {
             var tx = new TxData
             {
                 signer_id = accId,
-                public_key = KeyPair.FromString("").GetPublicKey(),
+                public_key = KeyPairEd25519.FromString("ed25519:private-key").GetPublicKey(),
                 nonce = nonce,
                 receiver_id = ctrId,
                 block_hash = blockHash,
             };
             var txData = tx.ToByteArr();
             var hash = SHA256.Create().ComputeHash(txData);
-            var signature = await SignMsg(txData, accId, nwId);
+            var signature = SignMsg(txData, accId, nwId);
             var signedTx = new SignedTxData
             {
                 tx = tx,
-                signature = new SignatureData()
+                signature = new SignatureData
+                {
+                    data = new ByteArray64
+                    {
+                        Buffer = signature.SignatureBytes
+                    }
+                }
             };
 
             return new Tuple<byte[], SignedTxData>(txData, signedTx);
         }
 
-        public async Task<Signature> SignMsg(byte[] msg, string accId, string nwId)
+        public Signature SignMsg(byte[] msg, string accId, string nwId)
         {
-            return null;
+            var data = SHA256.Create().ComputeHash(msg);
+            return SignHash(data, accId, nwId);
+        }
+
+        public Signature SignHash(byte[] hash, string accId, string nwId)
+        {
+            return KeyPairEd25519.FromString("ed25519:private-key").Sign(hash);
         }
     }
 }

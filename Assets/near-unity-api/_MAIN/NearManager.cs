@@ -22,7 +22,7 @@ namespace Near
         public async Task<FinalExecOutcomeData> SignAndSendTx(string ctrId)
         {
             var status = await _provider.GetStatus();
-            var (txHash, tx) = await _signer.SignTx(ctrId, 1, new ByteArray32
+            var (txHash, tx) = _signer.SignTx(ctrId, 1, new ByteArray32
             {
                 Buffer = Base58.Decode(status.sync_info.latest_block_hash)
             }, "", "");

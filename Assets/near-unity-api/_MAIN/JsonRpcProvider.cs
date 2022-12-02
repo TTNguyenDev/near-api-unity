@@ -3,11 +3,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Near
 {
     public class JsonRpcProvider : MonoBehaviour
     {
+        private const string TESTNET = "https://rpc.testnet.near.org";
+        private const string MAINNET = "https://rpc.testnet.near.org";
         private int _id = 0;
 
         public async Task<StatusData> GetStatus()
@@ -36,7 +39,24 @@ namespace Near
             };
 
             var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body).Replace("paramArr", "params"));
-            return null;
+
+            var req = new UnityWebRequest(TESTNET, "POST");
+            req.SetRequestHeader("Content-Type", "application/json");
+            req.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            req.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
+
+            var sender = req.SendWebRequest();
+            while (!sender.isDone)
+            {
+                await Task.Delay(1000 / 24);
+            }
+
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                throw new Exception(req.error);
+            }
+
+            return req.downloadHandler.text;
         }
     }
 }
