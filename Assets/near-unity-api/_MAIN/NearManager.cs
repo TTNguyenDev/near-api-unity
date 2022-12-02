@@ -8,12 +8,20 @@ using UnityEngine;
 
 namespace Near
 {
-    public class NearManager : MonoBehaviour
+    public class NearManager
     {
-        [SerializeField] private JsonRpcProvider _provider;
-        [SerializeField] private InMemorySigner _signer;
+        private const ulong DEFAULT_GAS = 300000000000000;
+        private const ushort DEFAULT_DEPOSIT = 0;
+        private JsonRpcProvider _provider;
+        private InMemorySigner _signer;
 
-        public async Task<object> FunctionCall(string accId, string method, object args, ulong? gas = null, Nullable<UInt128> amount = null)
+        public NearManager(string ctrId, string accId, string privateKey)
+        {
+            _provider = new JsonRpcProvider();
+            _signer = new InMemorySigner(ctrId, accId, privateKey);
+        }
+
+        public async Task<object> FunctionCall(string method, object args, ulong? gas = null, Nullable<UInt128> amount = null)
         {
             var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(args == null ? new { } : args));
             var act = new ActData
@@ -23,22 +31,22 @@ namespace Near
                 {
                     method = method,
                     args = data,
-                    gas = gas ?? 0,
-                    deposit = amount ?? 0
+                    gas = gas ?? DEFAULT_GAS,
+                    deposit = amount ?? (uint)DEFAULT_DEPOSIT
                 }
             };
 
-            return await SignAndSendTx("", new ActData[] { act });
+            return await SignAndSendTx(new ActData[] { act });
         }
 
-        public async Task<FinalExecOutcomeData> SignAndSendTx(string ctrId, ActData[] acts)
+        private async Task<FinalExecOutcomeData> SignAndSendTx(ActData[] acts)
         {
             var status = await _provider.GetStatus();
 
-            var (txHash, tx) = _signer.SignTx(ctrId, 1, acts, new ByteArray32
+            var (txHash, tx) = _signer.SignTx(1, acts, new ByteArray32
             {
                 Buffer = Base58.Decode(status.sync_info.latest_block_hash)
-            }, "acc-id", "network-id");
+            });
 
             var res = await _provider.SendTx(tx);
             if (res.status != null && res.status.Failure != null)

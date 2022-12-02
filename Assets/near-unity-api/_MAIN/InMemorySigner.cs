@@ -6,49 +6,58 @@ using UnityEngine;
 
 namespace Near
 {
-    public class InMemorySigner : MonoBehaviour
+    public class InMemorySigner
     {
-        public Tuple<byte[], SignedTxData> SignTx(string ctrId, ulong nonce, ActData[] acts, ByteArray32 blockHash, string accId, string nwId)
+        private string _ctrId, _accId, _privateKey;
+
+        public InMemorySigner(string ctrId, string accId, string privateKey)
+        {
+            _ctrId = ctrId;
+            _accId = accId;
+            _privateKey = privateKey;
+        }
+
+        public Tuple<byte[], SignedTxData> SignTx(ulong nonce, ActData[] acts, ByteArray32 blockHash)
         {
             var tx = new TxData
             {
-                signer_id = accId,
-                public_key = KeyPairEd25519.FromString("ed25519:private-key").GetPublicKey(),
+                signer_id = _accId,
+                public_key = GetKeyPair().GetPublicKey(),
                 nonce = nonce,
-                receiver_id = ctrId,
+                receiver_id = _ctrId,
                 actions = acts,
                 block_hash = blockHash,
             };
 
             var txData = tx.ToByteArr();
 
-            var hash = SHA256.Create().ComputeHash(txData);
-
-            var signature = SignMsg(txData, accId, nwId);
-            var signedTx = new SignedTxData
+            return new Tuple<byte[], SignedTxData>(txData, new SignedTxData
             {
                 tx = tx,
                 signature = new SignatureData
                 {
                     data = new ByteArray64
                     {
-                        Buffer = signature.SignatureBytes
+                        Buffer = SignMsg(txData).SignatureBytes
                     }
                 }
-            };
-
-            return new Tuple<byte[], SignedTxData>(txData, signedTx);
+            });
         }
 
-        public Signature SignMsg(byte[] msg, string accId, string nwId)
+        public Signature SignMsg(byte[] msg)
         {
             var data = SHA256.Create().ComputeHash(msg);
-            return SignHash(data, accId, nwId);
+            return SignHash(data);
         }
 
-        public Signature SignHash(byte[] hash, string accId, string nwId)
+        private Signature SignHash(byte[] hash)
         {
-            return KeyPairEd25519.FromString("ed25519:private-key").Sign(hash);
+            return GetKeyPair().Sign(hash);
+        }
+
+        private KeyPair GetKeyPair()
+        {
+            return KeyPairEd25519.FromString(_privateKey);
         }
     }
 }

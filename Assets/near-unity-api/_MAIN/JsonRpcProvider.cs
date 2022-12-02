@@ -7,10 +7,10 @@ using UnityEngine.Networking;
 
 namespace Near
 {
-    public class JsonRpcProvider : MonoBehaviour
+    public class JsonRpcProvider
     {
-        private const string TESTNET = "https://rpc.testnet.near.org";
-        private const string MAINNET = "https://rpc.testnet.near.org";
+        private const string TESTNET_URL = "https://rpc.testnet.near.org";
+        private const string MAINNET_URL = "https://rpc.mainnet.near.org";
         private int _id = 0;
 
         public async Task<StatusData> GetStatus()
@@ -27,7 +27,7 @@ namespace Near
             return JsonConvert.DeserializeObject<FinalExecOutcomeData>(res);
         }
 
-        public async Task<string> SendJsonRpc(string method, object[] paramArr = null)
+        private async Task<string> SendJsonRpc(string method, object[] paramArr = null)
         {
             paramArr ??= new object[] { };
             var body = new
@@ -38,9 +38,10 @@ namespace Near
                 id = _id++,
             };
 
-            var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body).Replace("paramArr", "params"));
+            var json = JsonConvert.SerializeObject(body).Replace("paramArr", "params");
+            var data = Encoding.UTF8.GetBytes(json);
 
-            var req = new UnityWebRequest(TESTNET, "POST");
+            var req = new UnityWebRequest(TESTNET_URL, "POST");
             req.SetRequestHeader("Content-Type", "application/json");
             req.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             req.uploadHandler = (UploadHandler)new UploadHandlerRaw(data);
