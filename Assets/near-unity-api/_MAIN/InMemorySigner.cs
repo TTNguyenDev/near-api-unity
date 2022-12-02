@@ -55,7 +55,7 @@ namespace Near
             return GetKeyPair().Sign(hash);
         }
 
-        private KeyPair GetKeyPair()
+        public KeyPair GetKeyPair()
         {
             return KeyPairEd25519.FromString(_privateKey);
         }

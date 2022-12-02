@@ -18,11 +18,16 @@ namespace Near
             return await SendJsonRpc("status") as StatusData;
         }
 
+        public async Task<object> Query(string path, string data)
+        {
+            var paramArr = new string[] { path, data };
+            return await SendJsonRpc("query", paramArr);
+        }
+
         public async Task<FinalExecOutcomeData> SendTx(SignedTxData tx)
         {
             var txData = tx.ToByteArr();
             var body = new object[] { Convert.ToBase64String(txData, 0, txData.Length) };
-
             return await SendJsonRpc("broad_tx_commit", body) as FinalExecOutcomeData;
         }
 

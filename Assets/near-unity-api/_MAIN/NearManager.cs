@@ -14,9 +14,12 @@ namespace Near
         private const ushort DEFAULT_DEPOSIT = 0;
         private JsonRpcProvider _provider;
         private InMemorySigner _signer;
+        private string _accId;
+        private AccessKeyData _accessKey = null;
 
         public NearManager(string ctrId, string accId, string privateKey)
         {
+            _accId = accId;
             _provider = new JsonRpcProvider();
             _signer = new InMemorySigner(ctrId, accId, privateKey);
         }
@@ -41,9 +44,23 @@ namespace Near
 
         private async Task<FinalExecOutcomeData> SignAndSendTx(ActData[] acts)
         {
+            if (_accessKey == null)
+            {
+                try
+                {
+                    var publicKey = _signer.GetKeyPair().GetPublicKey();
+                    _accessKey = await _provider.Query($"access_key/{_accId}/{publicKey.ToString()}", "") as AccessKeyData;
+                }
+                catch (Exception err)
+                {
+                    _accessKey = null;
+                    throw err;
+                }
+            }
+
             var status = await _provider.GetStatus();
 
-            var (txHash, tx) = _signer.SignTx(1, acts, new ByteArray32
+            var (txHash, tx) = _signer.SignTx(++_accessKey.nonce, acts, new ByteArray32
             {
                 Buffer = Base58.Decode(status.sync_info.latest_block_hash)
             });
