@@ -15,19 +15,18 @@ namespace Near
 
         public async Task<StatusData> GetStatus()
         {
-            var res = await SendJsonRpc("status");
-            return JsonConvert.DeserializeObject<StatusData>(res);
+            return await SendJsonRpc("status") as StatusData;
         }
 
         public async Task<FinalExecOutcomeData> SendTx(SignedTxData tx)
         {
             var txData = tx.ToByteArr();
             var body = new object[] { Convert.ToBase64String(txData, 0, txData.Length) };
-            var res = await SendJsonRpc("broad_tx_commit", body);
-            return JsonConvert.DeserializeObject<FinalExecOutcomeData>(res);
+
+            return await SendJsonRpc("broad_tx_commit", body) as FinalExecOutcomeData;
         }
 
-        private async Task<string> SendJsonRpc(string method, object[] paramArr = null)
+        private async Task<object> SendJsonRpc(string method, object[] paramArr = null)
         {
             paramArr ??= new object[] { };
             var body = new
@@ -57,7 +56,11 @@ namespace Near
                 throw new Exception(req.error);
             }
 
-            return req.downloadHandler.text;
+            var res = req.downloadHandler.text;
+            return JsonConvert.DeserializeAnonymousType(res, new
+            {
+                result = new object()
+            }).result;
         }
     }
 }
