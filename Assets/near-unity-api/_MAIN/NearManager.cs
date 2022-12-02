@@ -48,8 +48,9 @@ namespace Near
             {
                 try
                 {
-                    var publicKey = _signer.GetKeyPair().GetPublicKey();
-                    _accessKey = await _provider.Query($"access_key/{_accId}/{publicKey.ToString()}", "") as AccessKeyData;
+                    var pubKey = _signer.GetKeyPair().GetPublicKey();
+                    var qRes = await _provider.Query($"access_key/{_accId}/{pubKey.ToString()}", "");
+                    _accessKey = JsonConvert.DeserializeObject<AccessKeyData>(qRes);
                 }
                 catch (Exception err)
                 {
