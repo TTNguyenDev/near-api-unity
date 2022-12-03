@@ -15,8 +15,8 @@ namespace Near
             {
                 using (var wr = new NearBinaryWriter(ms))
                 {
-                    wr.Write(signature.ToByteArr());
                     wr.Write(tx.ToByteArr());
+                    wr.Write(signature.ToByteArr());
 
                     return ms.ToArray();
                 }

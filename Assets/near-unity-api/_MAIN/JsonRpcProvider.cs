@@ -29,7 +29,7 @@ namespace Near
         {
             var txData = tx.ToByteArr();
             var body = new object[] { Convert.ToBase64String(txData, 0, txData.Length) };
-            var res = await SendJsonRpc("broad_tx_commit", body);
+            var res = await SendJsonRpc("broadcast_tx_commit", body);
             return JsonConvert.DeserializeObject<FinalExecOutcomeData>(res);
         }
 
