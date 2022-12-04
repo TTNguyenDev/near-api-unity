@@ -5,12 +5,12 @@ using Newtonsoft.Json;
 namespace Near
 {
     [System.Serializable]
-    public class ActData : IByteArrData
+    public class Action : IByteArrayData
     {
         public object args;
-        public ActTypeEnum type;
+        public ActionType type;
 
-        public byte[] ToByteArr()
+        public byte[] ToByteArray()
         {
             using (var ms = new MemoryStream())
             {
@@ -18,7 +18,7 @@ namespace Near
                 {
                     wr.Write((byte)type);
 
-                    var funcCallArgs = GetArgs<FuncCallActData>();
+                    var funcCallArgs = GetArgs<FunctionCallActionArgs>();
                     wr.Write(funcCallArgs.method);
                     wr.Write((uint)funcCallArgs.args.Length);
                     wr.Write(funcCallArgs.args);
@@ -32,25 +32,25 @@ namespace Near
 
         private T GetArgs<T>()
         {
-            var json = JsonConvert.SerializeObject(args);
-            return JsonConvert.DeserializeObject<T>(json);
+            var jsonArgs = JsonConvert.SerializeObject(args);
+            return JsonConvert.DeserializeObject<T>(jsonArgs);
         }
     }
 
-    public enum ActTypeEnum
+    public enum ActionType
     {
-        CreateAcc = 0,
-        DeployCtr,
-        FuncCall,
+        CreateAccount = 0,
+        DeployContract,
+        FunctionCall,
         Transfer,
         Stake,
         AddKey,
-        DelKey,
-        DelAcc
+        DeleteKey,
+        DeleteAccount
     }
 
     [System.Serializable]
-    public class FuncCallActData
+    public class FunctionCallActionArgs
     {
         public string method;
         public byte[] args;

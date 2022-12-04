@@ -1,6 +1,6 @@
 namespace Near
 {
-    public class AccessKeyData
+    public class AccessKey
     {
         public ulong nonce;
     }

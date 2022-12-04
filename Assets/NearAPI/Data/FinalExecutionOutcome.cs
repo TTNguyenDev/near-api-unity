@@ -1,20 +1,20 @@
 namespace Near
 {
     [System.Serializable]
-    public class FinalExecOutcomeData
+    public class FinalExecutionOutcome
     {
-        public FinalExecStatusData status;
+        public FinalExecutionStatus status;
     }
 
     [System.Serializable]
-    public class FinalExecStatusData
+    public class FinalExecutionStatus
     {
-        public ExecErrorData Failure;
+        public ExecutionError Failure;
         public string SuccessValue;
     }
 
     [System.Serializable]
-    public class ExecErrorData
+    public class ExecutionError
     {
         public string error_message, error_type;
     }
